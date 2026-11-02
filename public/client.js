@@ -1,0 +1,23 @@
+const socket=io();let state=null;
+const $=id=>document.getElementById(id);
+function msg(t){$("gameMsg").textContent=t||""}
+$("create").onclick=()=>socket.emit("createRoom",{name:$("name").value||"Jogador 1"},r=>{if(!r.ok)return $("lobbyMsg").textContent=r.error; $("lobbyMsg").textContent="Sala criada: "+r.code;});
+$("join").onclick=()=>socket.emit("joinRoom",{name:$("name").value||"Jogador 2",code:$("code").value},r=>{if(!r.ok)$("lobbyMsg").textContent=r.error;else $("lobbyMsg").textContent="Entrando...";});
+socket.on("state",s=>{state=s;$("lobby").hidden=true;$("game").hidden=false;$("roomCode").textContent=s.code;$("myScore").textContent=s.score[s.me];$("theirScore").textContent=s.score[1-s.me];$("oppLabel").textContent=s.names[1-s.me]||"Adversário";$("opponentName").textContent=s.ready?"Contra "+s.names[1-s.me]:"Aguardando...";
+$("status").textContent=s.message;$("vira").textContent=s.vira?s.vira.id:"?";$("vira").className="playing-card "+(s.vira&&["♥","♦"].includes(s.vira.s)?"red":"");$("manilha").textContent=s.manilha?"Manilha: "+s.manilha:"";
+$("oppCount").textContent=(3-s.table.filter(x=>x.player===1-s.me).length)+" cartas";$("oppCards").innerHTML=Array.from({length:Math.max(0,3-s.table.filter(x=>x.player===1-s.me).length)},()=>"<i></i>").join("");
+$("played").innerHTML=s.table.slice(-2).map(x=>`<div>${x.player===s.me?"Você":s.names[x.player]}<div class="card ${["♥","♦"].includes(x.card.s)?"red":""}">${x.card.id}</div></div>`).join("");
+$("myCards").innerHTML=(s.hand||[]).map((c,i)=>`<button class="card ${["♥","♦"].includes(c.s)?"red":""}" data-i="${i}" ${s.status!=="playing"||s.turn!==s.me||s.pendingTruco!==null?"disabled":""}>${c.id}</button>`).join("");
+document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>socket.emit("playCard",{index:Number(b.dataset.i)},r=>{if(!r.ok)msg(r.error)}));
+$("truco").hidden=s.status!=="playing"||s.pendingTruco!==null||s.bet>=12;
+$("next").hidden=s.status!=="hand_over";$("next").textContent="Próxima mão";
+$("response").hidden=!(s.pendingTruco&&s.pendingTruco.by!==s.me);
+if(s.pendingTruco&&s.pendingTruco.by!==s.me)$("trucoText").textContent=`${s.names[s.pendingTruco.by]} pediu ${s.pendingTruco.value}! Aceita?`;
+if(s.pendingTruco&&s.pendingTruco.by===s.me)$("status").textContent="Você pediu truco. Aguardando resposta...";
+if(s.status==="match_over")$("status").textContent=s.message;
+});
+$("truco").onclick=()=>socket.emit("callTruco",r=>{if(!r.ok)msg(r.error)});
+$("accept").onclick=()=>socket.emit("respondTruco",{accept:true});
+$("refuse").onclick=()=>socket.emit("respondTruco",{accept:false});
+$("next").onclick=()=>socket.emit("nextHand",r=>{if(!r.ok)msg(r.error)});
+socket.on("connect_error",()=>{$("lobbyMsg").textContent="Falha de conexão. Atualize a página."});

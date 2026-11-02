@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Truco da Galera</title><link rel="stylesheet" href="style.css"></head>
+<body><main class="app">
+<header><div class="logo">🃏 TRUCO DA GALERA</div><div class="sub">Partida privada · 1 contra 1</div></header>
+<section id="lobby" class="panel">
+<h1>Entre na mesa</h1><label>Seu nome</label><input id="name" maxlength="18" placeholder="Ex.: Luan">
+<button id="create" class="primary">Criar sala</button>
+<div class="or">OU</div><label>Código da sala</label><input id="code" inputmode="numeric" maxlength="6" placeholder="6 dígitos">
+<button id="join" class="secondary">Entrar na sala</button><p id="lobbyMsg" class="msg"></p>
+</section>
+<section id="game" hidden>
+<div class="score"><div><small>VOCÊ</small><b id="myScore">0</b></div><div class="room">SALA <strong id="roomCode"></strong><small id="opponentName">Aguardando...</small></div><div><small>ADVERSÁRIO</small><b id="theirScore">0</b></div></div>
+<div class="table">
+<div class="opponent"><div class="avatar">👤</div><div><b id="oppLabel">Adversário</b><small id="oppCount">3 cartas</small></div><div id="oppCards" class="backs"><i></i><i></i><i></i></div></div>
+<div class="middle"><div class="viraLabel">VIRA</div><div id="vira" class="playing-card">?</div><div id="manilha" class="manilha">Manilha: —</div><div id="played" class="played"></div></div>
+<div class="status" id="status">Aguardando jogador...</div>
+<div class="me"><div class="meLabel">SUAS CARTAS</div><div id="myCards" class="cards"></div></div>
+</div>
+<div class="actions" id="actions"><button id="truco" class="call">TRUCO!</button><button id="next" class="secondary" hidden>Próxima mão</button></div>
+<div id="response" class="response" hidden><b id="trucoText">Pediram TRUCO!</b><div><button id="accept" class="primary">Aceitar</button><button id="refuse" class="danger">Correr</button></div></div>
+<p id="gameMsg" class="msg"></p>
+</section>
+<footer>Sem apostas em dinheiro. Jogue pela diversão.</footer></main>
+<script src="/socket.io/socket.io.js"></script><script src="client.js"></script></body></html>
